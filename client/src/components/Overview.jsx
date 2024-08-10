@@ -26,7 +26,7 @@ const Overview = () => {
       try {
         const [complaintsSnapshot, employeesSnapshot] = await Promise.all([
           getDocs(collection(db, 'complaints')),
-          getDocs(collection(db, 'employee')),
+          getDocs(collection(db, 'employees')),
         ]);
 
         setComplaintsData(
