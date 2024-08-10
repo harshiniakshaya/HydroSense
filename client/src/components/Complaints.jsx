@@ -16,12 +16,12 @@ const Complaints = () => {
   useEffect(() => {
     const getComplaints = async () => {
       try {
-        const data = await getDocs(complaintsCollectionRef);
-        const filteredData = data.docs.map((doc) => ({
+        const querySnapshot = await getDocs(complaintsCollectionRef);
+        const complaintsData = querySnapshot.docs.map((doc) => ({
           ...doc.data(),
           id: doc.id,
         }));
-        setData(filteredData);
+        setData(complaintsData);
       } catch (err) {
         console.error('Error fetching documents: ', err);
       }
@@ -34,12 +34,12 @@ const Complaints = () => {
     const updatedData = [...data];
     const complaintId = updatedData[index].id;
 
-    updatedData[index].complaintStatus = newStatus;
+    updatedData[index].complaint_status = newStatus;
     setData(updatedData);
 
     try {
       const complaintDocRef = doc(db, 'complaints', complaintId);
-      await updateDoc(complaintDocRef, { complaintStatus: newStatus });
+      await updateDoc(complaintDocRef, { complaint_status: newStatus });
     } catch (err) {
       console.error('Error updating document: ', err);
     }
@@ -50,28 +50,15 @@ const Complaints = () => {
     setDialogOpen(true);
   };
 
-  const formatDate = (timestamp) => {
-    const date = timestamp.toDate();
-    return new Intl.DateTimeFormat('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    }).format(date);
-  };
-
   const filteredData = data.filter((complaint) => {
     const lowerSearchTerm = searchTerm.toLowerCase();
     return (
       complaint.statement.toLowerCase().includes(lowerSearchTerm) ||
       complaint.name.toLowerCase().includes(lowerSearchTerm) ||
-      complaint.phno.includes(searchTerm) ||
-      formatDate(complaint.timestamp).toLowerCase().includes(lowerSearchTerm)
+      complaint.phone.includes(searchTerm)
     );
   }).filter((complaint) =>
-    selectedStatus ? complaint.complaintStatus === selectedStatus : true
+    selectedStatus ? complaint.complaint_status === selectedStatus : true
   );
 
   const getStatusBackgroundColor = (status) => {
@@ -120,7 +107,7 @@ const Complaints = () => {
       <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
         <thead className="bg-[#004AAD] border-b border-gray-200 text-white">
           <tr>
-            {['id', 'name', 'phone_number', 'complaint', 'timestamp', 'image', 'complaintStatus'].map((header) => (
+            {['id', 'name', 'phone', 'statement', 'image_url', 'employee_assigned', 'employee_id', 'complaint_status'].map((header) => (
               <th key={header} className="p-3 text-left">
                 {header.replace('_', ' ').toUpperCase()}
               </th>
@@ -132,23 +119,23 @@ const Complaints = () => {
             <tr key={complaint.id} className="border-b border-gray-200">
               <td className="p-3">{complaint.id}</td>
               <td className="p-3">{complaint.name}</td>
-              <td className="p-3">{complaint.phno}</td>
+              <td className="p-3">{complaint.phone}</td>
               <td className="p-3">{complaint.statement}</td>
-              <td className="p-3">{formatDate(complaint.created_at)}</td>
               <td className="p-3">
                 <button
-                  onClick={() => handleImageClick(complaint.imageUrl)}
+                  onClick={() => handleImageClick(complaint.image_url)}
                   className="p-2 bg-blue-500 text-white rounded"
                 >
                   View Image
                 </button>
               </td>
-              <td className="p-3">{complaint.statement}</td>
+              <td className="p-3">{complaint.employee_assigned ? 'Yes' : 'No'}</td>
+              <td className="p-3">{complaint.employee_id}</td>
               <td className="p-3">
                 <select
-                  value={complaint.complaintStatus}
+                  value={complaint.complaint_status}
                   onChange={(e) => handleStatusChange(index, e.target.value)}
-                  className={`p-2 border text-white rounded ${getStatusBackgroundColor(complaint.complaintStatus)}`}
+                  className={`p-2 border text-white rounded ${getStatusBackgroundColor(complaint.complaint_status)}`}
                 >
                   {statuses.map((status) => (
                     <option key={status} value={status}>

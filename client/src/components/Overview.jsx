@@ -14,7 +14,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { db } from '../config/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
 
 const Overview = () => {
   const [complaintsData, setComplaintsData] = useState([]);
@@ -24,9 +24,12 @@ const Overview = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const complaintsQuery = query(collection(db, 'complaints'), orderBy('timestamp', 'desc'), limit(5));
+        const employeesQuery = query(collection(db, 'employees'));
+
         const [complaintsSnapshot, employeesSnapshot] = await Promise.all([
-          getDocs(collection(db, 'complaints')),
-          getDocs(collection(db, 'employees')),
+          getDocs(complaintsQuery),
+          getDocs(employeesQuery),
         ]);
 
         setComplaintsData(
@@ -49,8 +52,8 @@ const Overview = () => {
   const getTotalComplaints = complaintsData.length;
 
   const getComplaintCountsByStatus = complaintsData.reduce(
-    (counts, { complaintStatus }) => {
-      counts[complaintStatus] = (counts[complaintStatus] || 0) + 1;
+    (counts, { complaint_status }) => {
+      counts[complaint_status] = (counts[complaint_status] || 0) + 1;
       return counts;
     },
     { Pending: 0, 'In Progress': 0, Resolved: 0, Closed: 0 }
@@ -64,8 +67,6 @@ const Overview = () => {
     { Active: 0, Inactive: 0 }
   );
 
-  const getRecentComplaints = complaintsData.slice(-5);
-
   const getComplaintsByDay = complaintsData.reduce((counts, { timestamp }) => {
     const date = timestamp.toDate().toLocaleDateString();
     counts[date] = (counts[date] || 0) + 1;
@@ -74,7 +75,6 @@ const Overview = () => {
 
   const complaintCountsByStatus = getComplaintCountsByStatus;
   const employeeCounts = getEmployeeCounts;
-  const recentComplaints = getRecentComplaints;
   const complaintsByDay = Object.entries(getComplaintsByDay).map(
     ([date, count]) => ({ date, count })
   );
@@ -157,25 +157,25 @@ const Overview = () => {
                 </h3>
                 <div className="w-full max-w-xs sm:max-w-md">
                   <ResponsiveContainer width="100%" height={200}>
-                  <BarChart
-                    data={Object.entries(employeeCounts).map(([status, count]) => ({
-                      name: status,
-                      count,
-                    }))}
-                  >
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="count">
-                      {Object.keys(employeeCounts).map((status, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={status === 'Active' ? '#008000' : '#ffbb28'}
-                        />
-                      ))}
-                    </Bar>
-                  </BarChart>
+                    <BarChart
+                      data={Object.entries(employeeCounts).map(([status, count]) => ({
+                        name: status,
+                        count,
+                      }))}
+                    >
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="count">
+                        {Object.keys(employeeCounts).map((status, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={status === 'Active' ? '#008000' : '#ffbb28'}
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
                   </ResponsiveContainer>
                 </div>
               </div>
@@ -192,7 +192,6 @@ const Overview = () => {
                     {[
                       'ID',
                       'Name',
-                      'Email',
                       'Phone Number',
                       'Timestamp',
                       'Status',
@@ -207,19 +206,16 @@ const Overview = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {recentComplaints.map((complaint) => (
+                  {complaintsData.map((complaint) => (
                     <tr key={complaint.id} className="border-b border-gray-200">
                       <td className="p-3 text-gray-600">{complaint.id}</td>
                       <td className="p-3 text-gray-600">{complaint.name}</td>
-                      <td className="p-3 text-gray-600">{complaint.email}</td>
-                      <td className="p-3 text-gray-600">
-                        {complaint.phone_number}
-                      </td>
+                      <td className="p-3 text-gray-600">{complaint.phone}</td>
                       <td className="p-3 text-gray-600">
                         {complaint.timestamp.toDate().toLocaleString()}
                       </td>
                       <td className="p-3 text-gray-600">
-                        {complaint.complaintStatus}
+                        {complaint.complaint_status}
                       </td>
                     </tr>
                   ))}
