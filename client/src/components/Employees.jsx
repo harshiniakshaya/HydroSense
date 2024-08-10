@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../config/firebase';
-import { collection, getDocs, doc, getDoc, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 
 const employeeStatuses = ['Active', 'Inactive'];
 const complaintStatuses = ['In Progress', 'Closed', 'Resolved'];
@@ -23,7 +23,6 @@ const Employees = () => {
   });
 
   const employeesCollectionRef = collection(db, 'employees');
-  const complaintsCollectionRef = collection(db, 'complaints');
 
   const fetchEmployeeData = async () => {
     try {
@@ -31,29 +30,10 @@ const Employees = () => {
       const employees = employeeData.docs.map((doc) => ({
         ...doc.data(),
         id: doc.id,
+        assignedComplaint: doc.data().assignedComplaint || '',
       }));
 
-      const complaintsPromises = employees.map(async (employee) => {
-        if (employee.assignedComplaint) {
-          const complaintDoc = await getDoc(
-            doc(complaintsCollectionRef, employee.assignedComplaint)
-          );
-          if (complaintDoc.exists()) {
-            const complaintData = {
-              ...complaintDoc.data(),
-              id: complaintDoc.id,
-            };
-            return { ...employee, assignedComplaint: complaintData };
-          } else {
-            return { ...employee, assignedComplaint: null };
-          }
-        } else {
-          return { ...employee, assignedComplaint: null };
-        }
-      });
-
-      const combinedData = await Promise.all(complaintsPromises);
-      setData(combinedData);
+      setData(employees);
     } catch (err) {
       console.error('Error fetching data:', err);
     }
@@ -73,7 +53,7 @@ const Employees = () => {
           employee.role.toLowerCase().includes(lowerSearchTerm) ||
           employee.id.toLowerCase().includes(lowerSearchTerm) ||
           (employee.assignedComplaint &&
-            employee.assignedComplaint.id.toLowerCase().includes(lowerSearchTerm))
+            employee.assignedComplaint.toLowerCase().includes(lowerSearchTerm))
         );
       }
       return true;
@@ -83,13 +63,11 @@ const Employees = () => {
     )
     .filter((employee) =>
       complaintStatusFilter
-        ? employee.assignedComplaint &&
-          employee.assignedComplaint.status === complaintStatusFilter
+        ? employee.complaintStatus === complaintStatusFilter
         : true
     );
 
-  const getComplaintDetails = (complaint) =>
-    complaint ? `${complaint.id}` : 'None';
+  const getComplaintDetails = (complaint) => (complaint ? complaint : 'None');
 
   const handleCreateEmployee = async () => {
     try {
@@ -288,6 +266,7 @@ const Employees = () => {
                   setNewEmployee({ ...newEmployee, role: e.target.value })
                 }
                 className="p-2 border rounded w-full"
+                required
               >
                 <option value="">Select Role</option>
                 {roles.map((role) => (
@@ -297,16 +276,80 @@ const Employees = () => {
                 ))}
               </select>
             </div>
+            <div className="mb-4">
+              <input
+                type="text"
+                placeholder="Assigned Complaint"
+                value={newEmployee.assignedComplaint}
+                onChange={(e) =>
+                  setNewEmployee({
+                    ...newEmployee,
+                    assignedComplaint: e.target.value,
+                  })
+                }
+                className="p-2 border rounded w-full"
+              />
+            </div>
+            <div className="mb-4">
+              <select
+                value={newEmployee.complaintStatus}
+                onChange={(e) =>
+                  setNewEmployee({
+                    ...newEmployee,
+                    complaintStatus: e.target.value,
+                  })
+                }
+                className="p-2 border rounded w-full"
+              >
+                <option value="">Select Complaint Status</option>
+                {complaintStatuses.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-4">
+              <select
+                value={newEmployee.status}
+                onChange={(e) =>
+                  setNewEmployee({ ...newEmployee, status: e.target.value })
+                }
+                className="p-2 border rounded w-full"
+              >
+                {employeeStatuses.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-4">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={newEmployee.availability}
+                  onChange={(e) =>
+                    setNewEmployee({
+                      ...newEmployee,
+                      availability: e.target.checked,
+                    })
+                  }
+                  className="mr-2"
+                />
+                Available
+              </label>
+            </div>
             <div className="flex justify-end">
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="bg-gray-500 text-white p-2 rounded mr-2"
+                className="bg-gray-300 text-black p-2 rounded mr-2"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateEmployee}
-                className="bg-green-700 text-white p-2 rounded"
+                className="bg-blue-700 text-white p-2 rounded"
               >
                 Create
               </button>

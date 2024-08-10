@@ -134,7 +134,7 @@ const Complaints = () => {
               <td className="p-3">{complaint.name}</td>
               <td className="p-3">{complaint.phno}</td>
               <td className="p-3">{complaint.statement}</td>
-              <td className="p-3">{formatDate(complaint.timestamp)}</td>
+              <td className="p-3">{formatDate(complaint.created_at)}</td>
               <td className="p-3">
                 <button
                   onClick={() => handleImageClick(complaint.imageUrl)}
@@ -143,6 +143,7 @@ const Complaints = () => {
                   View Image
                 </button>
               </td>
+              <td className="p-3">{complaint.statement}</td>
               <td className="p-3">
                 <select
                   value={complaint.complaintStatus}
