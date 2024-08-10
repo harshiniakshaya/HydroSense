@@ -157,17 +157,25 @@ const Overview = () => {
                 </h3>
                 <div className="w-full max-w-xs sm:max-w-md">
                   <ResponsiveContainer width="100%" height={200}>
-                    <BarChart
-                      data={Object.entries(employeeCounts).map(
-                        ([status, count]) => ({ name: status, count })
-                      )}
-                    >
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="count" fill="#82ca8d" />
-                    </BarChart>
+                  <BarChart
+                    data={Object.entries(employeeCounts).map(([status, count]) => ({
+                      name: status,
+                      count,
+                    }))}
+                  >
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="count">
+                      {Object.keys(employeeCounts).map((status, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={status === 'Active' ? '#008000' : '#ffbb28'}
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
                   </ResponsiveContainer>
                 </div>
               </div>
