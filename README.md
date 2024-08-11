@@ -48,10 +48,10 @@ The system architecture of HydroSense comprises the following components:
 - **Admin Dashboard**: Manages complaints, alerts, and employee assignments.
 
 ### Flow Chart
-![Flow Chart](hydorsense-flowchart.png)
+![Flow Chart](HydroSense/hydorsense-flowchart.png)
 
 ### System Architecture Diagram
-![System Architecture](hydrosensor-system-architecture.png)
+![System Architecture](HydroSense/hydrosensor-system-architecture.png)
 
 ## Technology Stack
 
