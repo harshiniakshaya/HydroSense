@@ -48,10 +48,10 @@ The system architecture of HydroSense comprises the following components:
 - **Admin Dashboard**: Manages complaints, alerts, and employee assignments.
 
 ### Flow Chart
-![Flow Chart](hydorsense-flowchart.png)
+![Flow Chart](hydrosense-flowchart.png)
 
 ### System Architecture Diagram
-![System Architecture](hydrosensor-system-architecture.png)
+![System Architecture](hydrosense-system-architecture.png)
 
 ## Technology Stack
 
@@ -69,8 +69,4 @@ The system architecture of HydroSense comprises the following components:
 - **Firebase**: For real-time database management and authentication.
 - **Django**: A high-level Python web framework used for handling backend operations.
 
-## How to Run the Project
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/harshiniakshaya/HydroSense.git
