@@ -34,12 +34,12 @@ const Complaints = () => {
     const updatedData = [...data];
     const complaintId = updatedData[index].id;
 
-    updatedData[index].complaint_status = newStatus;
+    updatedData[index].complaintStatus = newStatus;
     setData(updatedData);
 
     try {
       const complaintDocRef = doc(db, 'complaints', complaintId);
-      await updateDoc(complaintDocRef, { complaint_status: newStatus });
+      await updateDoc(complaintDocRef, { complaintStatus: newStatus });
     } catch (err) {
       console.error('Error updating document: ', err);
     }
@@ -133,9 +133,9 @@ const Complaints = () => {
               <td className="p-3">{complaint.employee_id}</td>
               <td className="p-3">
                 <select
-                  value={complaint.complaint_status}
+                  value={complaint.complaintStatus}
                   onChange={(e) => handleStatusChange(index, e.target.value)}
-                  className={`p-2 border text-white rounded ${getStatusBackgroundColor(complaint.complaint_status)}`}
+                  className={`p-2 border text-white rounded ${getStatusBackgroundColor(complaint.complaintStatus)}`}
                 >
                   {statuses.map((status) => (
                     <option key={status} value={status}>

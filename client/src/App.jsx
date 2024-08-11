@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import Pages from './Pages';
-import SignIn from './components/SignIn'; // Import the SignIn component
+import SignIn from './components/SignIn'; 
 
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Track authentication state
+  const [isAuthenticated, setIsAuthenticated] = useState(false); 
 
   return (
     <div>
       {isAuthenticated ? (
         <Pages /> 
       ) : (
-        <SignIn onAuthenticate={() => setIsAuthenticated(true)} /> // Show SignIn if not authenticated
+        <SignIn onAuthenticate={() => setIsAuthenticated(true)} /> 
       )}
     </div>
   );

@@ -52,8 +52,8 @@ const Overview = () => {
   const getTotalComplaints = complaintsData.length;
 
   const getComplaintCountsByStatus = complaintsData.reduce(
-    (counts, { complaint_status }) => {
-      counts[complaint_status] = (counts[complaint_status] || 0) + 1;
+    (counts, { complaintStatus }) => {
+      counts[complaintStatus] = (counts[complaintStatus] || 0) + 1;
       return counts;
     },
     { Pending: 0, 'In Progress': 0, Resolved: 0, Closed: 0 }
@@ -215,7 +215,7 @@ const Overview = () => {
                         {complaint.timestamp.toDate().toLocaleString()}
                       </td>
                       <td className="p-3 text-gray-600">
-                        {complaint.complaint_status}
+                        {complaint.complaintStatus}
                       </td>
                     </tr>
                   ))}
